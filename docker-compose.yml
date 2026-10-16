@@ -1,0 +1,9 @@
+services:
+  mediasaver:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      ACCESS_PASSWORD: "เปลี่ยนเป็นรหัสของคุณ"
+      # COOKIES_B64: ""        # ดู README หัวข้อ cookies
+    restart: unless-stopped

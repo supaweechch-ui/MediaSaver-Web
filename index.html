@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#e8eeeb">
+<title>MediaSaver</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#e8eeeb;      /* พื้นหลัง */
+  --card:#f6f9f7;       /* การ์ด */
+  --ink:#13211c;        /* ตัวอักษร */
+  --mute:#5c6b65;       /* ตัวอักษรรอง */
+  --line:#c9d4cf;       /* เส้นขอบ */
+  --blue:#2338d6;       /* สีหลัก */
+  --blue-ink:#fff;
+  --amber:#f2b81c;      /* ระดับสัญญาณ */
+  --red:#c2321f;
+  --green:#14794f;
+  --seg-off:#d3dcd8;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#0f1613;--card:#17201c;--ink:#e6efeb;--mute:#8b9c95;--line:#2a3832;
+    --blue:#7d8cff;--blue-ink:#0b0f2e;--amber:#f5c542;--red:#ff8a75;--green:#4fd29b;--seg-off:#26332d;
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font:400 16px/1.55 "IBM Plex Sans Thai",system-ui,-apple-system,"Noto Sans Thai",sans-serif;
+  padding:max(20px,env(safe-area-inset-top)) 16px max(32px,env(safe-area-inset-bottom));
+  font-variant-numeric:tabular-nums;
+}
+main{max-width:560px;margin:0 auto}
+h1{
+  margin:8px 0 2px;font-weight:700;font-size:clamp(40px,12vw,60px);
+  line-height:1;letter-spacing:-.045em;
+}
+.sub{margin:0 0 22px;color:var(--mute)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:12px}
+[hidden]{display:none!important}
+
+/* ช่องวางลิงก์ */
+.urlrow{display:flex;gap:8px}
+.urlrow input{
+  flex:1;min-width:0;font:inherit;color:inherit;background:var(--paper);
+  border:1.5px solid var(--line);border-radius:12px;padding:13px 14px;
+}
+input:focus-visible,button:focus-visible,select:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.urlrow input:focus{border-color:var(--blue)}
+button{font:inherit;cursor:pointer}
+.btn{
+  border:0;border-radius:12px;padding:13px 18px;font-weight:700;
+  background:var(--blue);color:var(--blue-ink);
+}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line);font-weight:500}
+.msg{margin:10px 2px 0;font-size:14px;min-height:20px;color:var(--mute)}
+.msg.err{color:var(--red)}
+
+/* ตัวอย่างคลิป */
+.preview{display:flex;gap:12px}
+.thumb{
+  position:relative;flex:0 0 132px;aspect-ratio:16/9;border-radius:10px;overflow:hidden;
+  background:var(--seg-off);
+}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.dur{
+  position:absolute;right:5px;bottom:5px;background:rgba(10,14,12,.82);color:#fff;
+  font-size:12px;padding:1px 6px;border-radius:6px;
+}
+.meta{min-width:0}
+.title{
+  margin:0;font-weight:500;line-height:1.35;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
+}
+.by{margin:4px 0 0;font-size:14px;color:var(--mute);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.note{margin:10px 0 0;font-size:14px;color:var(--mute)}
+.note.warn{color:var(--red)}
+
+/* ตัวเลือก */
+.group{margin-top:16px}
+.group:first-child{margin-top:0}
+.lab{display:block;font-size:14px;color:var(--mute);margin-bottom:7px}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--paper);border:1.5px solid var(--line);border-radius:12px;padding:3px}
+.seg button{border:0;background:transparent;color:var(--mute);padding:9px;border-radius:9px;font-weight:500}
+.seg button[aria-pressed=true]{background:var(--ink);color:var(--paper)}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{
+  border:1.5px solid var(--line);background:transparent;color:var(--ink);
+  padding:7px 14px;border-radius:999px;font-weight:500;
+}
+.chip[aria-pressed=true]{background:var(--blue);border-color:var(--blue);color:var(--blue-ink)}
+details{margin-top:16px;border-top:1px solid var(--line);padding-top:12px}
+summary{cursor:pointer;color:var(--mute);font-size:14px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.two input{
+  font:inherit;color:inherit;background:var(--paper);border:1.5px solid var(--line);
+  border-radius:10px;padding:10px 12px;width:100%;
+}
+.check{display:flex;align-items:center;gap:9px;margin-top:12px;font-size:15px}
+.check input{width:20px;height:20px;accent-color:var(--blue)}
+#go{width:100%;margin-top:18px;padding:15px;font-size:17px}
+
+/* มิเตอร์ระดับสัญญาณ (ความคืบหน้า) */
+.meter{
+  display:grid;grid-template-columns:repeat(40,1fr);gap:2px;height:46px;align-items:end;margin:6px 0 10px;
+}
+.meter i{
+  display:block;border-radius:1.5px;background:var(--seg-off);
+  height:calc(34% + var(--h) * 66%);
+  transition:background-color .12s;
+}
+.meter i.on{background:var(--blue)}
+.meter i.hot{background:var(--amber)}
+.meter.done i.on,.meter.done i.hot{background:var(--green)}
+.meter.fail i.on,.meter.fail i.hot{background:var(--red)}
+.readout{display:flex;justify-content:space-between;gap:12px;font-size:14px;color:var(--mute)}
+.readout b{color:var(--ink);font-weight:700;font-size:22px;letter-spacing:-.02em}
+.status{margin:0 0 2px;font-weight:500}
+.save{
+  display:block;text-align:center;text-decoration:none;margin-top:14px;
+  border-radius:12px;padding:15px;font-weight:700;background:var(--green);color:#fff;
+}
+@media (prefers-color-scheme:dark){.save{color:#05231a}}
+.fine{margin:10px 0 0;font-size:13px;color:var(--mute)}
+
+/* ล่าสุด */
+.recent h2{margin:0 0 6px;font-size:15px;font-weight:500;color:var(--mute)}
+.recent button{
+  display:block;width:100%;text-align:left;border:0;border-top:1px solid var(--line);
+  background:transparent;color:var(--ink);padding:9px 2px;font-size:14px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.recent button:first-of-type{border-top:0}
+footer{margin-top:18px;font-size:12px;color:var(--mute);text-align:center}
+@media (max-width:420px){.preview{flex-direction:column}.thumb{flex-basis:auto;width:100%}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+  <h1>MediaSaver</h1>
+  <p class="sub">วางลิงก์ เลือก mp3 หรือ mp4 แล้วบันทึกลงเครื่อง</p>
+
+  <section class="card" id="auth" hidden>
+    <label class="lab" for="pw">ใส่รหัสผ่านเพื่อใช้งาน</label>
+    <div class="urlrow">
+      <input id="pw" type="password" autocomplete="current-password" placeholder="รหัสผ่าน">
+      <button class="btn" id="pwgo">เข้าใช้งาน</button>
+    </div>
+    <p class="msg err" id="pwmsg"></p>
+  </section>
+
+  <section class="card" id="inputCard">
+    <div class="urlrow">
+      <input id="url" type="url" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false"
+             placeholder="วางลิงก์ YouTube, TikTok หรือเว็บอื่น">
+      <button class="btn ghost" id="paste" type="button">วาง</button>
+    </div>
+    <p class="msg" id="msg" role="status"></p>
+  </section>
+
+  <section class="card" id="result" hidden>
+    <div class="preview">
+      <div class="thumb"><img id="thumb" alt="" referrerpolicy="no-referrer"><span class="dur" id="dur" hidden></span></div>
+      <div class="meta">
+        <p class="title" id="title"></p>
+        <p class="by" id="by"></p>
+      </div>
+    </div>
+    <p class="note" id="note" hidden></p>
+  </section>
+
+  <section class="card" id="opts" hidden>
+    <div class="group">
+      <div class="seg" role="group" aria-label="ประเภทไฟล์">
+        <button type="button" id="kVideo" aria-pressed="true">วิดีโอ</button>
+        <button type="button" id="kAudio" aria-pressed="false">เสียง</button>
+      </div>
+    </div>
+    <div class="group">
+      <span class="lab">ฟอร์แมต</span>
+      <div class="chips" id="fmts"></div>
+    </div>
+    <div class="group" id="qGroup">
+      <span class="lab">ความละเอียด</span>
+      <div class="chips" id="quals"></div>
+    </div>
+    <div class="group" id="bGroup" hidden>
+      <span class="lab">คุณภาพเสียง (kbps)</span>
+      <div class="chips" id="bits"></div>
+    </div>
+    <details>
+      <summary>ตัวเลือกเพิ่มเติม</summary>
+      <div class="two">
+        <input id="t0" inputmode="numeric" placeholder="ตัดตั้งแต่ (1:30)" aria-label="ตัดตั้งแต่">
+        <input id="t1" inputmode="numeric" placeholder="ถึง (2:45)" aria-label="ถึง">
+      </div>
+      <label class="check" id="plWrap" hidden>
+        <input type="checkbox" id="pl"><span id="plText">โหลดทั้ง playlist</span>
+      </label>
+    </details>
+    <button class="btn" id="go">ดาวน์โหลด</button>
+  </section>
+
+  <section class="card" id="job" hidden aria-live="polite">
+    <p class="status" id="jstatus"></p>
+    <div class="meter" id="meter" aria-hidden="true"></div>
+    <div class="readout"><b id="pct">0%</b><span id="speed"></span></div>
+    <a class="save" id="save" hidden>บันทึกไฟล์</a>
+    <p class="fine" id="fine"></p>
+  </section>
+
+  <section class="card recent" id="recent" hidden>
+    <h2>ลิงก์ล่าสุด</h2>
+    <div id="recentList"></div>
+  </section>
+
+  <footer id="foot"></footer>
+</main>
+
+<script>
+(() => {
+  const $ = s => document.querySelector(s);
+  const S = { cfg: null, info: null, kind: 'video', fmt: 'mp4', quality: '720', bitrate: '192', poll: null, busy: false };
+  const SEGS = 40;
+
+  // ── มิเตอร์ ──
+  const meter = $('#meter');
+  for (let i = 0; i < SEGS; i++) {
+    const el = document.createElement('i');
+    // ความสูงแต่ละแท่งคงที่ (ดูเป็นคลื่นเสียง) ไม่สุ่มใหม่ทุกครั้ง
+    el.style.setProperty('--h', (0.5 + 0.5 * Math.sin(i * 0.9) * Math.cos(i * 0.37)).toFixed(3));
+    meter.appendChild(el);
+  }
+  function setMeter(p, mode) {
+    const on = Math.round((p / 100) * SEGS);
+    [...meter.children].forEach((el, i) => {
+      el.className = i < on ? (i >= SEGS * 0.8 ? 'on hot' : 'on') : '';
+    });
+    meter.className = 'meter' + (mode ? ' ' + mode : '');
+  }
+
+  // ── เรียก API ──
+  const key = () => { try { return localStorage.getItem('ms_key') || ''; } catch (e) { return ''; } };
+  async function api(path, opt = {}) {
+    const r = await fetch(path, {
+      ...opt,
+      headers: { 'Content-Type': 'application/json', 'X-Access-Key': key(), ...(opt.headers || {}) }
+    });
+    let data = {};
+    try { data = await r.json(); } catch (e) {}
+    if (r.status === 401) { showAuth(); throw new Error(data.error || 'ต้องใส่รหัสผ่าน'); }
+    if (!r.ok || data.ok === false) throw new Error(data.error || 'เกิดข้อผิดพลาด (' + r.status + ')');
+    return data;
+  }
+  function showAuth() { $('#auth').hidden = false; $('#inputCard').hidden = true; $('#pw').focus(); }
+  async function tryAuth() {
+    try { localStorage.setItem('ms_key', $('#pw').value); } catch (e) {}
+    try {
+      await api('/api/me');
+      $('#auth').hidden = true; $('#inputCard').hidden = false; $('#pwmsg').textContent = '';
+      $('#url').focus();
+    } catch (e) { $('#pwmsg').textContent = e.message; }
+  }
+  $('#pwgo').onclick = tryAuth;
+  $('#pw').addEventListener('keydown', e => { if (e.key === 'Enter') tryAuth(); });
+
+  // ── ตัวช่วย ──
+  const fmtTime = s => {
+    s = Math.round(s); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60;
+    return (h ? h + ':' + String(m).padStart(2, '0') : m) + ':' + String(x).padStart(2, '0');
+  };
+  const fmtSize = b => b > 1e9 ? (b / 1e9).toFixed(2) + ' GB' : b > 1e6 ? (b / 1e6).toFixed(1) + ' MB' : Math.max(1, Math.round(b / 1e3)) + ' KB';
+  const setMsg = (t, err) => { const m = $('#msg'); m.textContent = t || ''; m.className = 'msg' + (err ? ' err' : ''); };
+
+  function chips(el, items, sel, labelFn, onPick) {
+    el.textContent = '';
+    items.forEach(v => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'chip'; b.textContent = labelFn(v);
+      b.setAttribute('aria-pressed', String(v === sel));
+      b.onclick = () => onPick(v);
+      el.appendChild(b);
+    });
+  }
+
+  // ── ตัวเลือก ──
+  function renderOpts() {
+    const c = S.cfg, isAudio = S.kind === 'audio';
+    $('#kVideo').setAttribute('aria-pressed', String(!isAudio));
+    $('#kAudio').setAttribute('aria-pressed', String(isAudio));
+    const list = isAudio ? c.audio_formats : c.video_formats;
+    if (!list.includes(S.fmt)) S.fmt = list[0];
+    chips($('#fmts'), list, S.fmt, v => v, v => { S.fmt = v; renderOpts(); });
+
+    $('#qGroup').hidden = isAudio;
+    $('#bGroup').hidden = !isAudio || c.lossless.includes(S.fmt);
+    if (!isAudio) {
+      const max = Math.max(0, ...(S.info?.heights || []));
+      let qs = c.qualities.filter(q => q === 'best' || !max || +q <= max);
+      if (!qs.includes(S.quality)) S.quality = qs.filter(q => q !== 'best').pop() || 'best';
+      chips($('#quals'), qs, S.quality, v => v === 'best' ? 'สูงสุด' : v + 'p', v => { S.quality = v; renderOpts(); });
+    }
+    chips($('#bits'), c.bitrates, S.bitrate, v => v, v => { S.bitrate = v; renderOpts(); });
+  }
+  $('#kVideo').onclick = () => { S.kind = 'video'; S.fmt = 'mp4'; renderOpts(); };
+  $('#kAudio').onclick = () => { S.kind = 'audio'; S.fmt = 'mp3'; renderOpts(); };
+
+  // ── วิเคราะห์ลิงก์ ──
+  let analyzing = 0;
+  async function analyze() {
+    const url = $('#url').value.trim();
+    if (!/^https?:\/\//i.test(url)) { setMsg('วางลิงก์ที่ขึ้นต้นด้วย http:// หรือ https://', true); return; }
+    const mine = ++analyzing;
+    setMsg('กำลังอ่านข้อมูลลิงก์…');
+    $('#result').hidden = true; $('#opts').hidden = true;
+    try {
+      const info = await api('/api/analyze', { method: 'POST', body: JSON.stringify({ url }) });
+      if (mine !== analyzing) return;
+      S.info = info; setMsg('');
+      $('#title').textContent = info.title;
+      $('#by').textContent = info.uploader || '';
+      const img = $('#thumb');
+      if (info.thumbnail) { img.src = info.thumbnail; img.hidden = false; } else { img.removeAttribute('src'); img.hidden = true; }
+      $('#dur').hidden = !info.duration;
+      if (info.duration) $('#dur').textContent = fmtTime(info.duration);
+
+      const note = $('#note'); note.hidden = true; note.className = 'note';
+      if (info.live) { note.textContent = 'นี่คือไลฟ์สด โหลดไม่ได้'; note.className = 'note warn'; note.hidden = false; }
+      else if (info.too_long) { note.textContent = 'คลิปยาวเกิน ' + S.cfg.max_duration_min + ' นาที เซิร์ฟเวอร์จะไม่โหลดให้'; note.className = 'note warn'; note.hidden = false; }
+      else if (info.kind === 'playlist') { note.textContent = 'นี่คือ playlist มี ' + info.count + ' รายการ (โหลดสูงสุด ' + S.cfg.max_playlist + ') ไฟล์จะถูกรวมเป็น .zip'; note.hidden = false; }
+
+      const wrap = $('#plWrap');
+      wrap.hidden = info.kind !== 'video' || !info.with_playlist;
+      $('#pl').checked = false;
+      $('#plText').textContent = info.mix ? 'ลิงก์นี้มีมิกซ์/เพลย์ลิสต์ โหลดทั้งหมด (สูงสุด ' + S.cfg.max_playlist + ' คลิป)' : 'ลิงก์นี้มี playlist โหลดทั้งหมดเป็น .zip';
+
+      $('#result').hidden = false; $('#opts').hidden = false;
+      $('#go').disabled = !!(info.live || info.too_long);
+      renderOpts();
+      remember(url, info.title);
+    } catch (e) {
+      if (mine === analyzing) setMsg(e.message, true);
+    }
+  }
+  $('#url').addEventListener('paste', () => setTimeout(analyze, 60));
+  $('#url').addEventListener('keydown', e => { if (e.key === 'Enter') analyze(); });
+  $('#paste').onclick = async () => {
+    try { $('#url').value = (await navigator.clipboard.readText()).trim(); analyze(); }
+    catch (e) { setMsg('เบราว์เซอร์ไม่ให้อ่านคลิปบอร์ด กดค้างที่ช่องแล้ววางลิงก์เอง', true); $('#url').focus(); }
+  };
+
+  // ── ดาวน์โหลด ──
+  async function start() {
+    if (S.busy) return;
+    const t0 = $('#t0').value.trim(), t1 = $('#t1').value.trim();
+    const body = {
+      url: $('#url').value.trim(), format: S.fmt, quality: S.quality, bitrate: S.bitrate,
+      trim: (t0 || t1) ? t0 + '-' + t1 : '',
+      playlist: S.info.kind === 'playlist' || $('#pl').checked
+    };
+    S.busy = true; $('#go').disabled = true;
+    $('#job').hidden = false; $('#save').hidden = true; $('#fine').textContent = '';
+    $('#jstatus').textContent = 'กำลังส่งงาน…'; $('#pct').textContent = '0%'; $('#speed').textContent = ''; setMeter(0);
+    $('#job').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    try {
+      const { id } = await api('/api/download', { method: 'POST', body: JSON.stringify(body) });
+      watch(id);
+    } catch (e) { finish('error', e.message); }
+  }
+  $('#go').onclick = start;
+
+  function watch(id) {
+    clearInterval(S.poll);
+    const tick = async () => {
+      try {
+        const j = await api('/api/jobs/' + id);
+        const label = { queued: 'รอคิว…', downloading: 'กำลังโหลด…', processing: 'กำลังแปลงไฟล์…' }[j.status];
+        if (j.status === 'done') { clearInterval(S.poll); return finish('done', j); }
+        if (j.status === 'error') { clearInterval(S.poll); return finish('error', j.error); }
+        let t = label || '';
+        if (j.items) t += ' (' + j.items.index + '/' + j.items.total + ')';
+        $('#jstatus').textContent = t;
+        $('#pct').textContent = Math.round(j.progress) + '%';
+        const sp = j.speed ? fmtSize(j.speed) + '/วินาที' : '';
+        $('#speed').textContent = [sp, j.eta ? 'เหลือ ' + fmtTime(j.eta) : ''].filter(Boolean).join(' · ');
+        setMeter(j.progress);
+      } catch (e) { clearInterval(S.poll); finish('error', e.message); }
+    };
+    S.poll = setInterval(tick, 900); tick();
+  }
+
+  function finish(state, payload) {
+    S.busy = false; $('#go').disabled = false;
+    if (state === 'done') {
+      setMeter(100, 'done'); $('#pct').textContent = '100%'; $('#speed').textContent = '';
+      $('#jstatus').textContent = 'เสร็จแล้ว';
+      const a = $('#save');
+      a.href = '/api/jobs/' + payload.id + '/file?key=' + encodeURIComponent(key());
+      a.textContent = 'บันทึกไฟล์ (' + fmtSize(payload.size) + ')';
+      a.hidden = false;
+      $('#fine').textContent = payload.filename + (payload.count > 1 ? ' · รวม ' + payload.count + ' ไฟล์' : '') +
+        ' · ไฟล์จะถูกลบจากเซิร์ฟเวอร์ใน ' + S.cfg.ttl_min + ' นาที';
+    } else {
+      setMeter(parseFloat($('#pct').textContent) || 0, 'fail');
+      $('#jstatus').textContent = 'โหลดไม่สำเร็จ: ' + payload;
+    }
+  }
+
+  // ── ลิงก์ล่าสุด ──
+  function remember(url, title) {
+    try {
+      let r = JSON.parse(localStorage.getItem('ms_recent') || '[]').filter(x => x.url !== url);
+      r.unshift({ url, title }); r = r.slice(0, 8);
+      localStorage.setItem('ms_recent', JSON.stringify(r));
+    } catch (e) {}
+    renderRecent();
+  }
+  function renderRecent() {
+    let r = [];
+    try { r = JSON.parse(localStorage.getItem('ms_recent') || '[]'); } catch (e) {}
+    const box = $('#recentList'); box.textContent = '';
+    r.forEach(x => {
+      const b = document.createElement('button'); b.type = 'button'; b.textContent = x.title || x.url;
+      b.onclick = () => { $('#url').value = x.url; analyze(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+      box.appendChild(b);
+    });
+    $('#recent').hidden = !r.length;
+  }
+
+  // ── เริ่มต้น ──
+  (async () => {
+    renderRecent();
+    try {
+      S.cfg = await (await fetch('/api/config')).json();
+      $('#foot').textContent = 'yt-dlp ' + S.cfg.ytdlp + (S.cfg.has_cookies ? ' · ใช้ cookies' : '');
+      if (S.cfg.auth_required) {
+        try { await api('/api/me'); } catch (e) { /* showAuth ถูกเรียกแล้ว */ }
+      }
+    } catch (e) { setMsg('เชื่อมต่อเซิร์ฟเวอร์ไม่ได้', true); }
+    const q = new URLSearchParams(location.search).get('url');   // รองรับ ?url=... (บุ๊กมาร์ก/แชร์)
+    if (q && S.cfg && !$('#inputCard').hidden) { $('#url').value = q; analyze(); }
+  })();
+})();
+</script>
+</body>
+</html>
